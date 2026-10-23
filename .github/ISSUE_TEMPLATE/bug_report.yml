@@ -1,0 +1,27 @@
+name: 🐛 Error
+description: Algo no funciona
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Para vulnerabilidades de seguridad **no** uses esto: lee SECURITY.md."
+  - type: input
+    id: macos
+    attributes:
+      label: Versión de macOS y Mac
+      placeholder: "macOS 27.0.1, MacBook Air M5"
+    validations:
+      required: true
+  - type: textarea
+    id: que
+    attributes:
+      label: ¿Qué ha pasado?
+      description: Qué esperabas y qué ha ocurrido. Incluye el mensaje de error de la app.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostico
+    attributes:
+      label: Diagnóstico
+      description: "Salida de `mount | grep -iE 'ntfs|fuse'` y de `kmutil showloaded | grep -i fuse`"
+      render: shell

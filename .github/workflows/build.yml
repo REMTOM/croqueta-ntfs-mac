@@ -1,0 +1,23 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compilar app
+        run: ./build.sh
+
+      - name: Comprobar scripts
+        run: |
+          brew install shellcheck
+          shellcheck -S error build.sh install.sh uninstall.sh helper/croqueta-ntfs-helper helper/empaquetar-ntfs3g.sh

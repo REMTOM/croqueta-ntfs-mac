@@ -1,0 +1,83 @@
+#!/bin/bash
+# croqueta-ntfs-helper — se ejecuta como root mediante sudo (regla en /etc/sudoers.d/croqueta-ntfs).
+# Solo admite:  mount <diskXsY>  |  unmount <diskXsY>
+# El nombre y el punto de montaje se derivan de diskutil, nunca de los argumentos.
+set -uo pipefail
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+orden=${1:-}
+dev=${2:-}
+
+[[ $dev =~ ^disk[0-9]+s[0-9]+$ ]] || { echo "Dispositivo no válido: $dev" >&2; exit 2; }
+[[ -b /dev/$dev ]] || { echo "No existe /dev/$dev" >&2; exit 2; }
+
+# Copia propia de ntfs-3g en carpeta de root (install.sh). Nunca la de Homebrew: la puede
+# modificar el usuario sin contraseña y aquí se ejecuta como root.
+NTFS_DIR=/Library/PrivilegedHelperTools/croqueta-ntfs
+NTFS3G=""
+if [[ -x $NTFS_DIR/ntfs-3g ]] && [[ -z $(find "$NTFS_DIR" \( ! -user root -o -perm -g+w -o -perm -o+w \) -print -quit) ]]; then
+    NTFS3G=$NTFS_DIR/ntfs-3g
+fi
+
+punto_montaje() {
+    mount | awk -v d="/dev/$dev" '$1 == d { sub(/^[^ ]+ on /, ""); sub(/ \([^)]*\)$/, ""); print; exit }'
+}
+
+case $orden in
+mount)
+    [[ -n $NTFS3G ]] || { echo "Falta $NTFS_DIR o no pertenece a root: ejecuta install.sh" >&2; exit 3; }
+
+    if mount | grep -q "^/dev/$dev on .*fuse"; then
+        echo "Ya está montado con escritura"; exit 0
+    fi
+
+    info=$(diskutil info -plist "$dev") || { echo "diskutil no reconoce $dev" >&2; exit 2; }
+    tipo=$(plutil -extract FilesystemType raw -o - - <<<"$info" 2>/dev/null)
+    [[ $tipo == ntfs ]] || { echo "$dev no es NTFS (tipo: ${tipo:-desconocido})" >&2; exit 4; }
+
+    nombre=$(plutil -extract VolumeName raw -o - - <<<"$info" 2>/dev/null | tr -cd '[:alnum:] ._-')
+    [[ -n $nombre ]] || nombre="NTFS-$dev"
+
+    # Quitar el montaje de solo lectura nativo de macOS.
+    diskutil unmount "$dev" >/dev/null 2>&1 || true
+
+    mp="/Volumes/$nombre"
+    if [[ -e $mp ]] && { mount | grep -q " on $mp (" || [[ -n $(ls -A "$mp" 2>/dev/null) ]]; }; then
+        mp="/Volumes/$nombre-$dev"
+    fi
+    mkdir -p "$mp"
+
+    uid=${SUDO_UID:-501}
+    gid=${SUDO_GID:-20}
+    opts=(-o local -o allow_other -o auto_xattr -o auto_cache -o noappledouble -o windows_names
+          -o "volname=$nombre" -o "uid=$uid" -o "gid=$gid")
+
+    # ntfs-3g puede salir con 0 aunque macFUSE no llegue a montar: se comprueba la tabla de montajes.
+    montado() {
+        for _ in 1 2 3 4 5; do
+            mount | grep -q " on $mp (" && return 0
+            sleep 1
+        done
+        return 1
+    }
+
+    # Se usa la extensión de núcleo de macFUSE: el backend FSKit solo admite libfuse3 y ntfs-3g usa libfuse2.
+    err=$("$NTFS3G" "/dev/$dev" "$mp" "${opts[@]}" 2>&1) && montado && { echo "Montado en $mp"; exit 0; }
+
+    rmdir "$mp" 2>/dev/null
+    diskutil mount "$dev" >/dev/null 2>&1   # dejarlo al menos en solo lectura
+    echo "ntfs-3g no pudo montar (¿kext de macFUSE permitida y cargada?): ${err:-sin montaje}" >&2
+    exit 5
+    ;;
+unmount)
+    mp=$(punto_montaje)
+    [[ -n $mp ]] || { echo "No está montado"; exit 0; }
+    diskutil unmount "$dev" >/dev/null 2>&1 || umount "$mp" || { echo "No se pudo desmontar $mp (¿archivos abiertos?)" >&2; exit 6; }
+    rmdir "$mp" 2>/dev/null || true
+    echo "Desmontado"
+    ;;
+*)
+    echo "Uso: croqueta-ntfs-helper mount|unmount diskXsY" >&2
+    exit 1
+    ;;
+esac
