@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>Croqueta Digital NTFS Write on Mac</title>
+    <organization>es.croquetadigital</organization>
+    <welcome file="welcome.html" mime-type="text/html"/>
+    <license file="license.html" mime-type="text/html"/>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+    <background file="background.png" alignment="bottomleft" scaling="none"/>
+    <background-darkAqua file="background.png" alignment="bottomleft" scaling="none"/>
+
+    <!-- ntfs-3g está compilado para Apple silicon y macOS 26 -->
+    <options customize="never" require-scripts="true" hostArchitectures="arm64" rootVolumeOnly="true"/>
+    <domains enable_localSystem="true" enable_anywhere="false" enable_currentUserHome="false"/>
+    <allowed-os-versions>
+        <os-version min="26.0"/>
+    </allowed-os-versions>
+
+    <choices-outline>
+        <line choice="default">
+            <line choice="es.croquetadigital.ntfswrite.pkg"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="es.croquetadigital.ntfswrite.pkg" visible="false">
+        <pkg-ref id="es.croquetadigital.ntfswrite.pkg"/>
+    </choice>
+    <pkg-ref id="es.croquetadigital.ntfswrite.pkg" version="__VERSION__" onConclusion="none">croqueta-ntfs-component.pkg</pkg-ref>
+</installer-gui-script>

@@ -42,7 +42,22 @@ macOS solo sabe **leer** NTFS. Croqueta Digital NTFS Write on Mac detecta los di
 > [!IMPORTANT]
 > ntfs-3g usa libfuse2, y el backend **FSKit** de macFUSE solo funciona con libfuse3. Por eso hace falta la **extensión de núcleo** de macFUSE, que en Apple silicon obliga a poner el Mac en **Seguridad reducida**. Lee el paso 2 antes de empezar.
 
-## Instalación
+## Instalación fácil (recomendada)
+
+1. Descarga **`Croqueta-NTFS-<versión>.pkg`** de [Releases](https://github.com/REMTOM/croqueta-ntfs-mac/releases).
+2. Haz doble clic y pulsa **Continuar** hasta terminar. El instalador:
+   - instala la app y la deja configurada para abrirse al iniciar sesión,
+   - descarga e instala **macFUSE** desde su web oficial si no lo tienes (comprueba su hash SHA-256 y su firma de desarrollador),
+   - instala ntfs-3g y el helper, y crea la regla de sudo para tu usuario.
+3. Sigue la pantalla final para **permitir macFUSE** (ver el [paso 2](#2-permitir-la-extensión-de-núcleo-de-macfuse-solo-apple-silicon-una-vez)). Solo hace falta la primera vez en cada Mac.
+
+> [!NOTE]
+> El `.pkg` no está firmado con un certificado de Apple Developer. Si macOS dice que es de un *desarrollador no identificado*: **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.
+> Requisitos del `.pkg`: Apple silicon, macOS 26 o posterior y conexión a Internet. El registro de la instalación queda en `/var/log/croqueta-ntfs-install.log`.
+
+Para generar el `.pkg` tú mismo: `./installer/make-pkg.sh` (necesita ntfs-3g de Homebrew en el Mac que lo genera).
+
+## Instalación manual (desarrolladores)
 
 ### 1. Dependencias
 
@@ -104,6 +119,7 @@ cd croqueta-ntfs-mac
 | `helper/empaquetar-ntfs3g.sh` | Copia ntfs-3g y sus librerías a una carpeta aislada y las reenlaza |
 | `build.sh` | Compila y empaqueta la `.app` (sin sudo) |
 | `install.sh` / `uninstall.sh` | Instalación y desinstalación completas |
+| `installer/` | Instalador `.pkg` con asistente: `make-pkg.sh`, scripts pre/postinstall y pantallas |
 
 ## Seguridad
 

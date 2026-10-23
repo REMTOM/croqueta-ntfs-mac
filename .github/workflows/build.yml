@@ -20,4 +20,8 @@ jobs:
       - name: Comprobar scripts
         run: |
           brew install shellcheck
-          shellcheck -S error build.sh install.sh uninstall.sh helper/croqueta-ntfs-helper helper/empaquetar-ntfs3g.sh
+          shellcheck -S error build.sh install.sh uninstall.sh helper/croqueta-ntfs-helper helper/empaquetar-ntfs3g.sh \
+            installer/make-pkg.sh installer/scripts/preinstall installer/scripts/postinstall
+
+      - name: Validar distribution.xml
+        run: xmllint --noout installer/distribution.xml

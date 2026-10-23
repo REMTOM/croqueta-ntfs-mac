@@ -14,6 +14,9 @@ El nombre **Croqueta Digital** ([croquetadigital.es](https://croquetadigital.es)
 | macFUSE | Licencia propia de macFUSE (componentes BSD) | https://macfuse.github.io/ |
 | Fórmula Homebrew `ntfs-3g-mac` | BSD-2-Clause (tap gromgit/fuse) | https://github.com/gromgit/homebrew-fuse |
 
-`helper/empaquetar-ntfs3g.sh` copia en **tu propio Mac** los binarios de ntfs-3g que ya tienes instalados con Homebrew. Este repositorio no publica esos binarios. Si algún día distribuyes una versión que los incluya, tendrás que cumplir la GPL v2 (ofrecer el código fuente de ntfs-3g, etc.) y la licencia de macFUSE.
+El repositorio no contiene binarios de terceros.
+
+El **instalador `.pkg`** (Releases) **sí incluye** ntfs-3g 2026.9.28 y libintl compilados. Se distribuyen bajo sus licencias GPL-2.0-or-later y LGPL; los textos van en `/Library/PrivilegedHelperTools/croqueta-ntfs/` y el código fuente correspondiente está en https://github.com/tuxera/ntfs-3g/archive/refs/tags/2026.9.28.tar.gz y https://www.gnu.org/software/gettext/.
+El `.pkg` **no** incluye macFUSE: lo descarga de su web oficial durante la instalación, y la `libfuse` que usa ntfs-3g se copia de la instalación local de macFUSE.
 
 NTFS es una marca de Microsoft Corporation. Paragon y Tuxera son marcas de sus propietarios. Este proyecto no tiene relación con ellos.

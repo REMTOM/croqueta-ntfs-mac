@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8">
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 13px -apple-system, sans-serif; margin: 0 0 0 4px; }
+  h1 { font-size: 18px; margin: 0 0 6px; }
+  h2 { font-size: 14px; margin: 14px 0 4px; }
+  ol { padding-left: 20px; }
+  li { margin: 3px 0; }
+  .aviso { border-left: 3px solid #e8731a; padding: 4px 8px; }
+  .nota { opacity: .75; font-size: 12px; }
+</style></head>
+<body>
+<h1>🥟 ¡Instalado!</h1>
+<p>La croqueta ya está en la barra de menús. Falta <b>un paso único</b>, que macOS solo deja hacer a ti:</p>
+
+<h2>Si ya lo hiciste antes</h2>
+<p>No tienes que hacer nada más. Conecta un disco NTFS y listo.</p>
+
+<h2>Si es la primera vez en este Mac</h2>
+<ol>
+  <li>Abre <b>Ajustes del Sistema → Privacidad y seguridad</b>. Si ves <i>«Se ha bloqueado software del sistema de Benjamin Fleischer»</i>, pulsa <b>Permitir</b>.</li>
+  <li>Si macOS te pide <b>reducir la seguridad</b>, apaga el Mac y mantén pulsado el botón de encendido hasta ver <b>«Cargando opciones de arranque»</b> → <b>Opciones</b>.</li>
+  <li><b>Utilidades → Utilidad de Seguridad de Arranque</b> → tu disco → <b>Política de seguridad…</b> → marca <b>Seguridad reducida</b> y <b>«Permitir la gestión por parte del usuario de extensiones de kernel de desarrolladores identificados»</b>. Reinicia.</li>
+  <li>Vuelve al paso 1, pulsa <b>Permitir</b> y reinicia.</li>
+</ol>
+
+<p class="aviso">La Seguridad reducida deja que tu Mac cargue extensiones de núcleo de terceros, como macFUSE. Puedes volver a <b>Seguridad completa</b> cuando quieras con los mismos pasos, pero la escritura NTFS dejará de funcionar.</p>
+
+<p class="nota">Expulsa siempre los discos desde la croqueta antes de desconectarlos.<br>
+Si algo falla: <code>/var/log/croqueta-ntfs-install.log</code> · <a href="https://github.com/REMTOM/croqueta-ntfs-mac">GitHub</a> · <a href="https://croquetadigital.es">croquetadigital.es</a></p>
+</body>
+</html>

@@ -14,6 +14,8 @@ rm -rf "/Applications/$APP_NAME.app"
 sudo rm -rf /Library/PrivilegedHelperTools/croqueta-ntfs-helper \
             /Library/PrivilegedHelperTools/croqueta-ntfs \
             /etc/sudoers.d/croqueta-ntfs
+sudo pkgutil --forget es.croquetadigital.ntfswrite.pkg >/dev/null 2>&1 || true
 defaults delete es.croquetadigital.ntfswrite 2>/dev/null || true
-echo "Desinstalado. Para quitar también macFUSE y ntfs-3g:"
-echo "  brew uninstall gromgit/fuse/ntfs-3g-mac && brew uninstall --cask macfuse"
+echo "Desinstalado. macFUSE no se ha tocado. Para quitarlo también:"
+echo "  - instalado con el .pkg: abre /Library/Filesystems/macfuse.fs/Contents/Resources/uninstall_macfuse.app"
+echo "  - instalado con Homebrew: brew uninstall gromgit/fuse/ntfs-3g-mac && brew uninstall --cask macfuse"

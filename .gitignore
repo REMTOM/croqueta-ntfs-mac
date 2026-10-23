@@ -2,6 +2,7 @@
 .build/
 build/
 *.app
+*.pkg
 *.iconset/
 DerivedData/
 .swiftpm/

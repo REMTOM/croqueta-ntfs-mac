@@ -1,0 +1,16 @@
+#!/bin/bash
+# Se ejecuta como root antes de copiar los archivos: cierra la app y borra versiones anteriores.
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+pkill -x CroquetaNTFS 2>/dev/null
+pkill -x NTFSMount 2>/dev/null
+
+# Versión antigua ("NTFS Mount").
+rm -rf "/Applications/NTFS Mount.app" \
+       /Library/PrivilegedHelperTools/ntfsmount-helper \
+       /Library/PrivilegedHelperTools/ntfsmount \
+       /etc/sudoers.d/ntfsmount
+
+# Copia anterior de ntfs-3g: se instala limpia.
+rm -rf /Library/PrivilegedHelperTools/croqueta-ntfs
+exit 0

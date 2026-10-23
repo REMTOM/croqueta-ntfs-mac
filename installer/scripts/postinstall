@@ -1,0 +1,65 @@
+#!/bin/bash
+# Se ejecuta como root al final de la instalación:
+#   1. instala macFUSE si falta (descarga oficial, hash y firma verificados)
+#   2. copia libfuse a la carpeta protegida y fija permisos
+#   3. crea la regla de sudo para el usuario que está instalando
+#   4. lanza la app como ese usuario
+set -u
+PATH=/usr/bin:/bin:/usr/sbin:/sbin
+exec >>/var/log/croqueta-ntfs-install.log 2>&1
+echo "== $(date '+%F %T') postinstall"
+
+APP="/Applications/Croqueta Digital NTFS Write on Mac.app"
+HELPER=/Library/PrivilegedHelperTools/croqueta-ntfs-helper
+NTFS_DIR=/Library/PrivilegedHelperTools/croqueta-ntfs
+SUDOERS=/etc/sudoers.d/croqueta-ntfs
+
+MACFUSE_VER=5.4.0
+MACFUSE_URL="https://github.com/macfuse/macfuse/releases/download/macfuse-$MACFUSE_VER/macfuse-$MACFUSE_VER.dmg"
+MACFUSE_SHA256=861814f0ac7fa8f6547ea40cdd49a36ac84bcc7d34f38a1fa74e8cf68b0401c5
+MACFUSE_TEAM=3T5GSNBU6W
+
+fallo() { echo "ERROR: $*"; exit 1; }
+
+usuario=$(stat -f %Su /dev/console)
+[[ -n $usuario && $usuario != root && $usuario != loginwindow ]] || fallo "no hay usuario con sesión iniciada"
+uid=$(id -u "$usuario")
+
+# --- 1. macFUSE ---------------------------------------------------------------
+if [[ ! -d /Library/Filesystems/macfuse.fs || ! -f /usr/local/lib/libfuse.2.dylib ]]; then
+    echo "Instalando macFUSE $MACFUSE_VER"
+    tmp=$(mktemp -d)
+    curl -fsSL --retry 3 -o "$tmp/macfuse.dmg" "$MACFUSE_URL" || fallo "no se pudo descargar macFUSE (¿hay conexión a Internet?)"
+    echo "$MACFUSE_SHA256  $tmp/macfuse.dmg" | shasum -a 256 -c - || fallo "el hash de macFUSE no coincide"
+    mnt=$(hdiutil attach -nobrowse -readonly -noverify -mountrandom /private/tmp "$tmp/macfuse.dmg" | awk -F'\t' '/\/private\/tmp\//{print $NF}' | tail -1)
+    pkg="$mnt/Extras/macFUSE $MACFUSE_VER.pkg"
+    pkgutil --check-signature "$pkg" | grep -q "($MACFUSE_TEAM)" || { hdiutil detach "$mnt" -quiet; fallo "firma de macFUSE no válida"; }
+    installer -pkg "$pkg" -target / || { hdiutil detach "$mnt" -quiet; fallo "falló el instalador de macFUSE"; }
+    hdiutil detach "$mnt" -quiet
+    rm -rf "$tmp"
+fi
+
+# --- 2. libfuse y permisos ----------------------------------------------------
+# libfuse es de macFUSE y no se redistribuye: se copia la del sistema, verificando su firma.
+libfuse=/usr/local/lib/libfuse.2.dylib
+codesign -dv "$libfuse" 2>&1 | grep -q "TeamIdentifier=$MACFUSE_TEAM" || fallo "libfuse sin la firma de macFUSE"
+cp "$libfuse" "$NTFS_DIR/libfuse.2.dylib"
+chown -R root:wheel "$NTFS_DIR" "$HELPER"
+chmod 755 "$NTFS_DIR" "$HELPER"
+chmod 755 "$NTFS_DIR"/ntfs-3g "$NTFS_DIR"/*.dylib
+"$NTFS_DIR/ntfs-3g" --version >/dev/null 2>&1 || fallo "la copia de ntfs-3g no arranca"
+
+# --- 3. sudo sin contraseña solo para el helper ------------------------------
+regla=$(mktemp)
+echo "$usuario ALL=(root) NOPASSWD: $HELPER" > "$regla"
+visudo -cf "$regla" >/dev/null || fallo "regla de sudo no válida"
+install -o root -g wheel -m 440 "$regla" "$SUDOERS"
+rm -f "$regla"
+
+# --- 4. Pedir permiso para la kext y abrir la app -----------------------------
+# Hace que aparezca "Permitir" en Privacidad y seguridad si la kext aún no está aprobada.
+/Library/Filesystems/macfuse.fs/Contents/Resources/load_macfuse >/dev/null 2>&1 || true
+
+launchctl asuser "$uid" sudo -u "$usuario" open "$APP" || true
+echo "OK para $usuario"
+exit 0

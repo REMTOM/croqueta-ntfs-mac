@@ -47,6 +47,11 @@ final class DiskManager: ObservableObject {
     init() {
         autoMontar = UserDefaults.standard.object(forKey: "autoMontar") as? Bool ?? true
         abrirAlIniciar = SMAppService.mainApp.status == .enabled
+        // Primera ejecución: abrir al iniciar sesión activado por defecto.
+        if !UserDefaults.standard.bool(forKey: "configuradoInicio") {
+            UserDefaults.standard.set(true, forKey: "configuradoInicio")
+            if !abrirAlIniciar { abrirAlIniciar = true }
+        }
         iniciarDiskArbitration()
         refrescar()
     }

@@ -13,3 +13,5 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 - Helper root `croqueta-ntfs-helper` con validación de argumentos y comprobación real del montaje.
 - Copia aislada de ntfs-3g que pertenece a root (`empaquetar-ntfs3g.sh`).
 - `install.sh`, `uninstall.sh`, CI de compilación en GitHub Actions.
+- Instalador `.pkg` con asistente (`installer/make-pkg.sh`): instala macFUSE si falta (hash y firma verificados), la app, el helper y la regla de sudo, y abre la app.
+- La app se configura para abrirse al iniciar sesión la primera vez que se ejecuta.
