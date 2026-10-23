@@ -2,7 +2,7 @@
 
 ## Marca Croqueta Digital
 
-El nombre **Croqueta Digital** ([croquetadigital.es](https://croquetadigital.es)), el logo y las imágenes de `assets/` (`logo.png`, `croqueta.png`, `menubar.png`) son de Croqueta Digital. Todos los derechos reservados.
+El nombre **Croqueta Digital** ([croquetadigital.es](https://croquetadigital.es)), el logo y las imágenes de `assets/` (`logo.png`, `croqueta.png`, `menubar.png`, `social-preview.png`) son de Croqueta Digital. Todos los derechos reservados.
 
 **No** están incluidos en la licencia MIT del código. Puedes usarlos sin modificar para referirte a este proyecto, pero si publicas un fork o una versión modificada, quita el logo y cambia el nombre.
 
