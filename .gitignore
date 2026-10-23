@@ -1,0 +1,26 @@
+# Compilación
+.build/
+build/
+*.app
+*.iconset/
+DerivedData/
+.swiftpm/
+
+# macOS
+.DS_Store
+._*
+
+# Editores
+.vscode/
+.idea/
+*.xcuserstate
+xcuserdata/
+
+# Secretos (nunca al repo)
+.env
+.env.*
+*.p12
+*.cer
+*.mobileprovision
+*.pem
+*.key
